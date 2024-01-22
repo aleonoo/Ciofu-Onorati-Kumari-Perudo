@@ -1,3 +1,5 @@
 public class Client {
-    public
+    public static void main(){
+        //TODO: startNetwork in ClientNetwork
+    }
 }
