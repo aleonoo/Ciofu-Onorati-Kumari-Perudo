@@ -1,4 +1,4 @@
-package src;
+package src.server.game;
 
 public class Match {
     //TODO: On Match creation parse players
