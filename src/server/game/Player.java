@@ -21,6 +21,11 @@ public class Player {
             dice.add(new Die());
         }
     }
+
+    public LinkedList<Die> getDice(){
+        return dice;
+    }
+
     public String diceValues(){
         StringBuilder temp = new StringBuilder();
 
@@ -29,6 +34,9 @@ public class Player {
         }
 
         return temp.toString();
+    }
+    public boolean hasDice(){
+        return !dice.isEmpty();
     }
 
     public Socket getSocket() {
