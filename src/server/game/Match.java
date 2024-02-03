@@ -30,88 +30,99 @@ public class Match implements Runnable{
                                 player.sendToThis("StartBet");
 
                                 startWait();
-                                //Input
 
-                                if(setStartBet(player, 0, 0)){
+                                String interaction = player.getLastInteraction();
+
+                                String[] bet = interaction.split(";");
+
+                                int dieValue = Integer.parseInt(bet[0]);
+                                int dieNumber = Integer.parseInt(bet[1]);
+
+                                if(setStartBet(player, dieValue, dieNumber)){
                                     break;
                                 }
                             }
                         }
                         else{
-                            player.sendToThis("TakeAction");
-
-                            startWait();
-
-                            String action = null;
-                            //Input
-
-                            if(action.equals("1")){
-
-                                boolean doubt = doubt();
-
-                                if(doubt){
-
-                                    lobby.sendToAll(currentBet.getPlayer().getNickname() + " lost a die.");
-                                    currentBet.getPlayer().getDice().remove();
-
-                                    if(!currentBet.getPlayer().hasDice()){
-                                        lobby.sendToAll(currentBet.getPlayer().getNickname() + " lost the game.");
-                                        playersAlive--;
-                                    }
-                                }
-                                else{
-
-                                    lobby.sendToAll(player.getNickname() + " lost a die.");
-                                    player.getDice().remove();
-
-                                    if(!player.hasDice()){
-                                        lobby.sendToAll(player.getNickname() + " lost the game.");
-                                        playersAlive--;
-                                    }
-
-                                }
-
-                                currentBet = null;
-                            }
-                            else if(action.equals("2")){
-
-                                player.sendToThis("NewBet");
+                            while (true){
+                                player.sendToThis("TakeAction");
 
                                 startWait();
 
-                                String choice = null;
-                                //Input
+                                String action = player.getLastInteraction();
 
-                                if(choice.equals("1")){
+                                if(action.equals("1")){
+
+                                    boolean doubt = doubt();
+
+                                    if(doubt){
+
+                                        lobby.sendToAll(currentBet.getPlayer().getNickname() + " lost a die.");
+                                        currentBet.getPlayer().getDice().remove();
+
+                                        if(!currentBet.getPlayer().hasDice()){
+                                            lobby.sendToAll(currentBet.getPlayer().getNickname() + " lost the game.");
+                                            playersAlive--;
+                                        }
+                                    }
+                                    else{
+
+                                        lobby.sendToAll(player.getNickname() + " lost a die.");
+                                        player.getDice().remove();
+
+                                        if(!player.hasDice()){
+                                            lobby.sendToAll(player.getNickname() + " lost the game.");
+                                            playersAlive--;
+                                        }
+
+                                    }
+
+                                    currentBet = null;
+                                }
+                                else if(action.equals("2")){
                                     while(true){
-
-                                        player.sendToThis("NewDiceValue");
+                                        player.sendToThis("NewBet");
 
                                         startWait();
 
-                                        int newDiceValue = 0;
-                                        //Input
+                                        String choice = player.getLastInteraction();
 
-                                        if(setNewDiceValue(player, newDiceValue)){
-                                            break;
+                                        if(choice.equals("1")){
+                                            while(true){
+
+                                                player.sendToThis("NewDiceValue");
+
+                                                startWait();
+
+                                                int newDiceValue = Integer.parseInt(player.getLastInteraction());
+
+                                                if(setNewDiceValue(player, newDiceValue)){
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else if(choice.equals("2")){
+                                            while(true){
+                                                player.sendToThis("NewDiceNumber");
+
+                                                startWait();
+
+                                                int newDiceNumber = Integer.parseInt(player.getLastInteraction());
+
+                                                if(setNewDiceNumber(player, newDiceNumber)){
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else{
+                                            player.sendToThis("Not a choice.");
                                         }
                                     }
+
                                 }
-                                else if(choice.equals("2")){
-                                    while(true){
-                                        player.sendToThis("NewDiceNumber");
-
-                                        startWait();
-
-                                        int newDiceNumber = 0;
-                                        //Input
-
-                                        if(setNewDiceNumber(player, newDiceNumber)){
-                                            break;
-                                        }
-                                    }
+                                else{
+                                    player.sendToThis("Not a choice.");
                                 }
-
                             }
 
                         }
@@ -123,7 +134,7 @@ public class Match implements Runnable{
             }
         }
         catch(Exception e){
-
+            System.out.println("Closing match.");
         }
     }
 

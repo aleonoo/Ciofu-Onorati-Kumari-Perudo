@@ -9,6 +9,7 @@ public class Player {
     Socket socket;
     String nickname;
     LinkedList<Die> dice = new LinkedList<>();
+    String lastInteraction = "";
 
     public Player(Socket socket, String nickaname){
         this.socket = socket;
@@ -20,6 +21,16 @@ public class Player {
         for(int i = 0; i<5; i++){
             dice.add(new Die());
         }
+    }
+    public void removeAllDice() {
+        this.dice = new LinkedList<>();
+    }
+
+    public void setLastInteraction(String lastInteraction) {
+        this.lastInteraction = lastInteraction;
+    }
+    public String getLastInteraction() {
+        return lastInteraction;
     }
 
     public LinkedList<Die> getDice(){

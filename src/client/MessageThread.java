@@ -18,12 +18,34 @@ public class MessageThread implements Runnable{
 
             try {
                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                System.out.println(inputStream.readUTF());
+                String packet = inputStream.readUTF();
+
+                if(packet.equals("StartGame")){
+                    ClientNetwork.canStartGame = true;
+                }
+                else if(packet.equals("StartBet")){
+                    ClientNetwork.canStartBet = true;
+                }
+                else if (packet.equals("TakeAction")) {
+                    ClientNetwork.canTakeAction = true;
+                }
+                else if (packet.equals("NewBet")) {
+                    ClientNetwork.canNewBet = true;
+                }
+                else if (packet.equals("NewDiceValue")) {
+                    ClientNetwork.canNewDieValue = true;
+                }
+                else if (packet.equals("NewDiceNumber")) {
+                    ClientNetwork.canNewDieNumber = true;
+                }
+                else{
+                    System.out.println(packet);
+                }
+
             }
             catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
         }
     }
 }

@@ -40,7 +40,7 @@ public class ServerNetwork implements Runnable{
                 if(lobbies.isEmpty()){
                     player.sendToThis("Nuova Lobby creata.");
 
-                    Lobby lobby = new Lobby();
+                    Lobby lobby = new Lobby(player);
                     lobby.joinLobby(player);
 
                     lobbies.add(lobby);
@@ -63,7 +63,7 @@ public class ServerNetwork implements Runnable{
                     if(!isInLobby){ //Se non è in una lobby
                         player.sendToThis("Nuova Lobby creata.");
 
-                        Lobby lobby = new Lobby();
+                        Lobby lobby = new Lobby(player);
                         lobby.joinLobby(player);
 
                         lobbies.add(lobby);
