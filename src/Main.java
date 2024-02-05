@@ -22,11 +22,13 @@ public class Main {
 
                 if(choice.equals("1")){
                     new Thread(new ServerNetwork(12345)).start();
+                    break;
                 }
                 else if(choice.equals("2")){
                     System.out.println("Insert IP:");
                     String ip = in.readLine();
                     new Thread(new ClientNetwork(ip, 12345)).start();
+                    break;
                 }
                 else{
                     break;

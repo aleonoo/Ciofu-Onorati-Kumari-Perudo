@@ -37,7 +37,7 @@ public class Player {
         return dice;
     }
 
-    public String diceValues(){
+    public String getDiceString(){
         StringBuilder temp = new StringBuilder();
 
         for(Die die : dice){

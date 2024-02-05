@@ -30,9 +30,9 @@ public class ClientNetwork implements Runnable {
     public void run() {
         try{
             while(!socket.isClosed()){
-                System.out.println("Connesso");
+                System.out.println("Connected to a Server");
 
-                System.out.println("Inserisci nickname:");
+                System.out.println("Type nickname:");
 
                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
                 outputStream.writeUTF(in.readLine());
@@ -40,10 +40,8 @@ public class ClientNetwork implements Runnable {
                 new Thread(new MessageThread(socket)).start();
 
                 while(true){
-
                     if(canStartGame){
                         System.out.println("Start the game? Y/N");
-                        System.out.println();
                         String choice = in.readLine();
 
                         if(choice.equals("y") || choice.equals("Y")){
@@ -52,6 +50,8 @@ public class ClientNetwork implements Runnable {
                         else{
                             outputStream.writeUTF("nope");
                         }
+
+                        canStartGame = false;
                     }
                     else if(canStartBet){
                         System.out.println("[--START BET--]");
@@ -65,15 +65,19 @@ public class ClientNetwork implements Runnable {
                         String dieNumber = in.readLine();
 
                         outputStream.writeUTF("startBet:" + dieValue + ";" + dieNumber);
+
+                        canStartBet = false;
                     }
                     else if (canTakeAction) {
                         System.out.println("[--BET OR DOUBT--]");
                         System.out.println();
-                        System.out.println("1. Change bet");
-                        System.out.println("2. Doubt");
+                        System.out.println("1. Doubt");
+                        System.out.println("2. Change Bet");
                         String choice = in.readLine();
 
                         outputStream.writeUTF("takeAction:" + choice);
+
+                        canTakeAction = false;
                     }
                     else if (canNewBet) {
                         System.out.println("[--NEW BET--]");
@@ -84,6 +88,8 @@ public class ClientNetwork implements Runnable {
                         String choice = in.readLine();
 
                         outputStream.writeUTF("newBet:" + choice);
+
+                        canNewBet = false;
                     }
                     else if (canNewDieValue) {
                         System.out.println("[--NEW DIE VALUE--]");
@@ -92,6 +98,8 @@ public class ClientNetwork implements Runnable {
                         String newDieValue = in.readLine();
 
                         outputStream.writeUTF("newDieValue:" + newDieValue);
+
+                        canNewDieValue = false;
                     }
                     else if (canNewDieNumber) {
                         System.out.println("[--NEW DIE NUMBER--]");
@@ -100,6 +108,8 @@ public class ClientNetwork implements Runnable {
                         String newDieNumber = in.readLine();
 
                         outputStream.writeUTF("newDieNumber:" + newDieNumber);
+
+                        canNewDieNumber = false;
                     }
 
                 }

@@ -9,12 +9,11 @@ import java.util.LinkedList;
 
 public class Lobby implements Runnable{
 
-    LinkedList<Player> players = new LinkedList<>();
-    Player host = null;
-    Match match = null;
+    private final LinkedList<Player> players = new LinkedList<>();
+    private Player host = null;
+    private Match match = null;
     public volatile boolean hasStarted = false;
     public volatile boolean startSent = false;
-    public volatile boolean hasFinished = false;
 
     public Lobby(Player host){
         this.host = host;
@@ -32,20 +31,19 @@ public class Lobby implements Runnable{
 
                     this.match = new Match(this);
 
-                    (new Thread(this.match)).start(); //Start new game.
+                    (new Thread(this.match)).start();
                 }
                 else if (this.hasStarted && this.match != null && this.match.hasFinished) {
                     this.hasStarted = false;
                     this.startSent = false;
                     this.match = null;
 
-                    //We ask to restart the game.
                     host.sendToThis("StartGame");
                     this.startSent = true;
                 }
 
-                //If there's no players left in the lobby we close it.
                 if(this.players.isEmpty()){
+                    System.out.println("A lobby closed.");
                     ServerNetwork.lobbies.remove(this);
                     break;
                 }
@@ -57,9 +55,24 @@ public class Lobby implements Runnable{
     }
 
     public void joinLobby(Player newPlayer) throws IOException {
+
+        newPlayer.setup();
         players.add(newPlayer);
         sendToAll(newPlayer.getNickname() + " joined the lobby.");
-        new Thread(new ClientMessageThread(newPlayer, this)).start(); //Thread per gestire i messaggi di questo giocatore
+        new Thread(new ClientMessageThread(newPlayer, this)).start();
+
+        if (!this.isFull() && !hasStarted) {
+            this.sendToAll("Waiting for players (" + players.size() + "/" + 6 + ")");
+        }
+
+        if(this.canStart() && !hasStarted && this.startSent){
+            host.sendToThis("Start the game? Y/N");
+        }
+
+        if (this.canStart() && !this.startSent && !this.hasStarted) {
+            this.host.sendToThis("StartGame");
+            this.startSent = true;
+        }
     }
 
     public void leaveLobby(Player player) {
@@ -73,6 +86,7 @@ public class Lobby implements Runnable{
 
             ServerNetwork.players.remove(player);
             this.sendToAll(player.getNickname() + " left the lobby.");
+
             if (this.match != null) {
                 this.match.stopWait();
             }
@@ -82,14 +96,14 @@ public class Lobby implements Runnable{
             }
 
             if(startSent && !hasStarted){
-                host.sendToThis("Start the game? Y/N");
+                host.sendToThis("StartGame");
             }
         }
         catch(IOException ignored){}
     }
 
     public boolean canStart() {
-        return this.players.size() >= 6;
+        return this.players.size() >= 2;
     }
 
     public LinkedList<Player> getPlayers() {

@@ -10,11 +10,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 public class ServerNetwork implements Runnable{
-    //TODO: method: startNertwork
-    //TODO: create ServerSocket -> wait for connection
-    //TODO: on connection create Connection
-
-    ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
     public static LinkedList<Player> players = new LinkedList<>();
     public static LinkedList<Lobby> lobbies = new LinkedList<>();
 
@@ -24,24 +20,30 @@ public class ServerNetwork implements Runnable{
 
     @Override
     public void run() {
+
+        System.out.println("[--SERVER--]");
+        System.out.println("Info logs will be displayed");
+
         try {
             while(true){
                 Socket socket = serverSocket.accept();
-                System.out.println("Nuovo Client");
+                System.out.println("A client has connected.");
 
                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                String nickname = inputStream.readUTF(); //Prendiamo nickname
+                String nickname = inputStream.readUTF();
 
                 Player player = new Player(socket, nickname);
 
-                players.add(player); //Aggiugniamo alla lista il nuovo giocatore
-                System.out.println(player.diceValues());
+                players.add(player);
+                System.out.println(player.getDiceString());
 
                 if(lobbies.isEmpty()){
-                    player.sendToThis("Nuova Lobby creata.");
+                    player.sendToThis("New Lobby created.");
 
                     Lobby lobby = new Lobby(player);
                     lobby.joinLobby(player);
+
+                    new Thread(lobby).start();
 
                     lobbies.add(lobby);
                 }
@@ -53,22 +55,23 @@ public class ServerNetwork implements Runnable{
                             player.sendToThis("Lobby is full.");
                         }
                         else{
-                            isInLobby = true; //è in una lobby
+                            isInLobby = true;
                             player.sendToThis("Joined a Lobby.");
                             lobby.joinLobby(player);
                             break;
                         }
                     }
 
-                    if(!isInLobby){ //Se non è in una lobby
-                        player.sendToThis("Nuova Lobby creata.");
+                    if(!isInLobby){
+                        player.sendToThis("New Lobby created.");
 
                         Lobby lobby = new Lobby(player);
                         lobby.joinLobby(player);
 
+                        new Thread(lobby).start();
+
                         lobbies.add(lobby);
                     }
-
                 }
             }
         }

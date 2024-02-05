@@ -4,8 +4,8 @@ import java.io.IOException;
 
 public class Match implements Runnable{
 
-    Bet currentBet = null;
-    Lobby lobby;
+    private Bet currentBet = null;
+    private Lobby lobby;
     boolean hasFinished = false;
 
     public Match(Lobby lobby){
@@ -21,8 +21,13 @@ public class Match implements Runnable{
                     Player player = lobby.getPlayers().get(i);
 
                     if(player.hasDice()){
+
+                        lobby.sendToAll("Turn of: " + player.getNickname());
+                        player.sendToThis("YOUR DICE: " + player.getDiceString());
                         if(lobby.getPlayers().size() == 1 && playersAlive == 1){
                             lobby.sendToAll(player.getNickname() + " won.");
+                            hasFinished = true;
+                            break;
                         }
 
                         if(currentBet == null){
@@ -45,6 +50,7 @@ public class Match implements Runnable{
                         }
                         else{
                             while (true){
+                                lobby.sendToAll(currentBet());
                                 player.sendToThis("TakeAction");
 
                                 startWait();
@@ -53,10 +59,12 @@ public class Match implements Runnable{
 
                                 if(action.equals("1")){
 
+                                    lobby.sendToAll(player.getNickname() + " called a Doubt!");
+                                    lobby.sendToAll(currentBet());
                                     boolean doubt = doubt();
 
                                     if(doubt){
-
+                                        lobby.sendToAll("DOUBT WON!");
                                         lobby.sendToAll(currentBet.getPlayer().getNickname() + " lost a die.");
                                         currentBet.getPlayer().getDice().remove();
 
@@ -66,7 +74,7 @@ public class Match implements Runnable{
                                         }
                                     }
                                     else{
-
+                                        lobby.sendToAll("DOUBT LOST!");
                                         lobby.sendToAll(player.getNickname() + " lost a die.");
                                         player.getDice().remove();
 
@@ -78,6 +86,7 @@ public class Match implements Runnable{
                                     }
 
                                     currentBet = null;
+                                    break;
                                 }
                                 else if(action.equals("2")){
                                     while(true){
@@ -89,7 +98,6 @@ public class Match implements Runnable{
 
                                         if(choice.equals("1")){
                                             while(true){
-
                                                 player.sendToThis("NewDiceValue");
 
                                                 startWait();
@@ -100,6 +108,7 @@ public class Match implements Runnable{
                                                     break;
                                                 }
                                             }
+                                            break;
                                         }
                                         else if(choice.equals("2")){
                                             while(true){
@@ -113,29 +122,33 @@ public class Match implements Runnable{
                                                     break;
                                                 }
                                             }
+                                            break;
                                         }
                                         else{
                                             player.sendToThis("Not a choice.");
                                         }
                                     }
-
+                                    lobby.sendToAll("Bet changed!");
+                                    lobby.sendToAll(currentBet());
+                                    lobby.sendToAll("");
+                                    break;
                                 }
                                 else{
                                     player.sendToThis("Not a choice.");
                                 }
                             }
-
                         }
-
-
                     }
-
                 }
             }
         }
         catch(Exception e){
             System.out.println("Closing match.");
         }
+    }
+
+    public String currentBet(){
+        return "Current Bet: Die Value (" + currentBet.getDieValue() + ") and Die Number(" + currentBet.getDieNumber() +")";
     }
 
     public void startWait() throws InterruptedException {
