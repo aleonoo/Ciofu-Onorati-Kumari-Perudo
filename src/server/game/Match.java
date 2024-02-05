@@ -6,7 +6,7 @@ public class Match implements Runnable{
 
     private Bet currentBet = null;
     private Lobby lobby;
-    boolean hasFinished = false;
+    private boolean hasFinished = false;
 
     public Match(Lobby lobby){
         this.lobby = lobby;
@@ -16,14 +16,19 @@ public class Match implements Runnable{
     public void run(){
         try{
             int playersAlive = lobby.getPlayers().size();
+
+            //Until the match hasn't finished (although we forcefully exit this loop using breaks)
             while(!hasFinished){
                 for(int i = 0; i<lobby.getPlayers().size(); i++){
                     Player player = lobby.getPlayers().get(i);
 
+                    //If the player has some dice it means they can still play
                     if(player.hasDice()){
 
                         lobby.sendToAll("Turn of: " + player.getNickname());
                         player.sendToThis("YOUR DICE: " + player.getDiceString());
+
+                        //Check for end-game condition
                         if(lobby.getPlayers().size() == 1 && playersAlive == 1){
                             lobby.sendToAll(player.getNickname() + " won.");
                             hasFinished = true;
@@ -32,11 +37,19 @@ public class Match implements Runnable{
 
                         if(currentBet == null){
                             while(true){
+                                //Ask first bet of the match
                                 player.sendToThis("StartBet");
 
                                 startWait();
 
                                 String interaction = player.getLastInteraction();
+
+                                if(interaction == null){
+                                    playersAlive--;
+                                    break;
+                                }
+
+                                //initial string: 5;3 --> 5   3  --> dieValue = 5 and dieNumber = 3
 
                                 String[] bet = interaction.split(";");
 
@@ -51,12 +64,19 @@ public class Match implements Runnable{
                         else{
                             while (true){
                                 lobby.sendToAll(currentBet());
+                                //Ask player action between doubt or new bet
                                 player.sendToThis("TakeAction");
 
                                 startWait();
 
                                 String action = player.getLastInteraction();
 
+                                if(action == null){
+                                    playersAlive--;
+                                    break;
+                                }
+
+                                //Doubt
                                 if(action.equals("1")){
 
                                     lobby.sendToAll(player.getNickname() + " called a Doubt!");
@@ -88,6 +108,7 @@ public class Match implements Runnable{
                                     currentBet = null;
                                     break;
                                 }
+                                //New bet
                                 else if(action.equals("2")){
                                     while(true){
                                         player.sendToThis("NewBet");
@@ -96,13 +117,25 @@ public class Match implements Runnable{
 
                                         String choice = player.getLastInteraction();
 
+                                        if(choice == null){
+                                            playersAlive--;
+                                            break;
+                                        }
+
                                         if(choice.equals("1")){
                                             while(true){
                                                 player.sendToThis("NewDiceValue");
 
                                                 startWait();
 
-                                                int newDiceValue = Integer.parseInt(player.getLastInteraction());
+                                                String interaction = player.getLastInteraction();
+
+                                                if(interaction == null){
+                                                    playersAlive--;
+                                                    break;
+                                                }
+
+                                                int newDiceValue = Integer.parseInt(interaction);
 
                                                 if(setNewDiceValue(player, newDiceValue)){
                                                     break;
@@ -116,7 +149,14 @@ public class Match implements Runnable{
 
                                                 startWait();
 
-                                                int newDiceNumber = Integer.parseInt(player.getLastInteraction());
+                                                String interaction = player.getLastInteraction();
+
+                                                if(interaction == null){
+                                                    playersAlive--;
+                                                    break;
+                                                }
+
+                                                int newDiceNumber = Integer.parseInt(interaction);
 
                                                 if(setNewDiceNumber(player, newDiceNumber)){
                                                     break;
@@ -149,6 +189,10 @@ public class Match implements Runnable{
 
     public String currentBet(){
         return "Current Bet: Die Value (" + currentBet.getDieValue() + ") and Die Number(" + currentBet.getDieNumber() +")";
+    }
+
+    public boolean hasFinished() {
+        return hasFinished;
     }
 
     public void startWait() throws InterruptedException {

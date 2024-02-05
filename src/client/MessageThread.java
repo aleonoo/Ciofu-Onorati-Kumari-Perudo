@@ -17,6 +17,7 @@ public class MessageThread implements Runnable{
                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                 String packet = inputStream.readUTF();
 
+                //Tell ClientNetwork which command we received
                 switch (packet) {
                     case "StartGame" -> ClientNetwork.canStartGame = true;
                     case "StartBet" -> ClientNetwork.canStartBet = true;
@@ -24,6 +25,7 @@ public class MessageThread implements Runnable{
                     case "NewBet" -> ClientNetwork.canNewBet = true;
                     case "NewDiceValue" -> ClientNetwork.canNewDieValue = true;
                     case "NewDiceNumber" -> ClientNetwork.canNewDieNumber = true;
+                    //If no command was found, simply output it as it is a server message
                     default -> System.out.println(packet);
                 }
             }

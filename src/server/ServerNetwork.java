@@ -54,6 +54,9 @@ public class ServerNetwork implements Runnable{
                         if(lobby.isFull()){
                             player.sendToThis("Lobby is full.");
                         }
+                        else if(lobby.getMatch() != null){
+                            player.sendToThis("Match in this lobby already started.");
+                        }
                         else{
                             isInLobby = true;
                             player.sendToThis("Joined a Lobby.");

@@ -7,20 +7,14 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class ClientNetwork implements Runnable {
-    //TODO: method: startNertwork
-    //TODO: create ClientSocket
-    //TODO: connect to server
-    //TODO: do what server asks
-
     public static volatile boolean canStartGame = false;
     public static volatile boolean canStartBet = false;
     public static volatile boolean canTakeAction = false;
     public static volatile boolean canNewBet = false;
     public static volatile boolean canNewDieValue = false;
     public static volatile boolean canNewDieNumber = false;
-
-    Socket socket;
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    private final Socket socket;
+    private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
     public ClientNetwork(String ip, int port) throws IOException {
         socket = new Socket(ip, port);
@@ -30,7 +24,7 @@ public class ClientNetwork implements Runnable {
     public void run() {
         try{
             while(!socket.isClosed()){
-                System.out.println("Connected to a Server");
+                System.out.println("Connected to a Server!");
 
                 System.out.println("Type nickname:");
 
@@ -39,8 +33,9 @@ public class ClientNetwork implements Runnable {
 
                 new Thread(new MessageThread(socket)).start();
 
+                //Handle commands and send a response
                 while(true){
-                    if(canStartGame){
+                    if(canStartGame){ //Asking host if they want to start the game
                         System.out.println("Start the game? Y/N");
                         String choice = in.readLine();
 
@@ -53,7 +48,7 @@ public class ClientNetwork implements Runnable {
 
                         canStartGame = false;
                     }
-                    else if(canStartBet){
+                    else if(canStartBet){ //Initial bet of the match
                         System.out.println("[--START BET--]");
                         System.out.println();
                         System.out.println("Insert Die Value: ");
@@ -68,7 +63,7 @@ public class ClientNetwork implements Runnable {
 
                         canStartBet = false;
                     }
-                    else if (canTakeAction) {
+                    else if (canTakeAction) { //Ask if the player wants to change the bet or doubt the current one
                         System.out.println("[--BET OR DOUBT--]");
                         System.out.println();
                         System.out.println("1. Doubt");
@@ -79,7 +74,7 @@ public class ClientNetwork implements Runnable {
 
                         canTakeAction = false;
                     }
-                    else if (canNewBet) {
+                    else if (canNewBet) { //Ask how the player wants to change the bet
                         System.out.println("[--NEW BET--]");
                         System.out.println();
                         System.out.println("1. Change die value");
@@ -91,7 +86,7 @@ public class ClientNetwork implements Runnable {
 
                         canNewBet = false;
                     }
-                    else if (canNewDieValue) {
+                    else if (canNewDieValue) { //Ask the new die value
                         System.out.println("[--NEW DIE VALUE--]");
                         System.out.println();
                         System.out.println("Insert new die value: ");
@@ -101,7 +96,7 @@ public class ClientNetwork implements Runnable {
 
                         canNewDieValue = false;
                     }
-                    else if (canNewDieNumber) {
+                    else if (canNewDieNumber) { //Ask the new die number
                         System.out.println("[--NEW DIE NUMBER--]");
                         System.out.println();
                         System.out.println("Insert new die number: ");
