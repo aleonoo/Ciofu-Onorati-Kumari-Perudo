@@ -29,7 +29,7 @@ public class Match implements Runnable{
                         player.sendToThis("YOUR DICE: " + player.getDiceString());
 
                         //Check for end-game condition
-                        if(lobby.getPlayers().size() == 1 && playersAlive == 1){
+                        if(lobby.getPlayers().size() == 1 || playersAlive == 1){
                             lobby.sendToAll(player.getNickname() + " won.");
                             hasFinished = true;
                             break;
@@ -103,6 +103,12 @@ public class Match implements Runnable{
                                             playersAlive--;
                                         }
 
+                                    }
+
+                                    for(Player p : lobby.getPlayers()){
+                                        for(Die d : p.dice){
+                                            d.roll();
+                                        }
                                     }
 
                                     currentBet = null;
